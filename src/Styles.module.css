@@ -1,0 +1,25 @@
+.gridEditorCell {
+  height: 40px;
+  width: 40px;
+  font-size: 20px;
+  font-family: monospace;
+  text-align: center;
+  caret-color: transparent;
+  border: solid 1px #000000;
+  padding: 0;
+  cursor: default;
+}
+
+.gridEditorCell:focus {
+  outline: none;
+  background-color: #eeeeff;
+}
+
+.gridEditorCell::selection {
+  background-color: transparent;
+}
+
+.words {
+  font-size: 20px;
+  font-family: monospace;
+}
