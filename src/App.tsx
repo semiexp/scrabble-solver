@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { GridEditor } from "./GridEditor"
-import { solveScrabble } from "./Solver";
+import { solveScrabbleAsync, terminateWorker } from "./Solver";
 import { AnswerViewer } from "./AnswerViewer";
 import classes from "./Styles.module.css";
 
@@ -55,8 +55,12 @@ function App() {
     }
   };
 
+  const [isRunning, setIsRunning] = useState(false);
+
   const [answers, setAnswers] = useState<string[][][] | null>(null);
-  const onRunSolver = () => {
+  const [status, setStatus] = useState("");
+
+  const onRunSolver = async () => {
     const board = [];
     for (let y = 0; y < height; ++y) {
       const row = [];
@@ -72,9 +76,36 @@ function App() {
 
     const words = wordsRaw.split("\n").map((line) => line.trim()).filter((line) => line.length > 0);
 
-    const results = solveScrabble(board, words, maxAns);
-    setAnswers(results);
+    setAnswers(null);
+    setIsRunning(true);
+    setStatus("Running");
+
+    try {
+      const start = Date.now();
+
+      const results = await solveScrabbleAsync(board, words, maxAns);
+
+      const elapsed = (Date.now() - start) / 1000.0;
+
+      setAnswers(results);
+      setIsRunning(false);
+
+      if (results.length === 0) {
+        setStatus(`Done (${elapsed}[s]); No answer`);
+      } else {
+        setStatus(`Done (${elapsed}[s])`);
+      }
+    } catch (e) {
+      setIsRunning(false);
+      setStatus(`Error: ${e}`);
+    }
   };
+  const onTerminateSolver = () => {
+    if (!isRunning) {
+      return;
+    }
+    terminateWorker();
+  }
 
   return (
     <div>
@@ -83,15 +114,19 @@ function App() {
         width: <input type="number" value={width} onChange={onChangeWidth} size={4} />
         max ans: <input type="number" value={maxAns} size={5} onChange={(e) => setMaxAns(parseInt(e.target.value))} />
 
-        <input type="button" value="Run Solver" onClick={onRunSolver} />
+        <input type="button" value="Solve" onClick={onRunSolver} disabled={isRunning} />
+        <input type="button" value="Stop" onClick={onTerminateSolver} disabled={!isRunning} />
       </div>
       <div style={{display: "flex"}}>
         <GridEditor values={grid} onChange={gridOnChange} />
 
-        <textarea rows={8} cols={20} className={classes.words} onChange={(e) => setWordsRaw(e.target.value)}>{wordsRaw}</textarea>
+        <textarea rows={8} cols={20} className={classes.words} onChange={(e) => setWordsRaw(e.target.value)} value={wordsRaw} />
+      </div>
+      <div>
+        {status}
       </div>
       {
-        answers && <AnswerViewer answers={answers} />
+        answers && answers.length > 0 && <AnswerViewer answers={answers} />
       }
     </div>
   )
