@@ -23,3 +23,17 @@
   font-size: 20px;
   font-family: monospace;
 }
+
+.answerCell {
+  height: 40px;
+  width: 40px;
+  line-height: 40px;
+  font-size: 20px;
+  font-family: monospace;
+  text-align: center;
+  vertical-align: middle;
+  caret-color: transparent;
+  border: solid 1px #000000;
+  padding: 0;
+  user-select: none;
+}
