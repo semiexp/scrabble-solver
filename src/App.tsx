@@ -2,6 +2,7 @@ import { useState } from "react";
 import { GridEditor } from "./GridEditor"
 import { solveScrabbleAsync, terminateWorker } from "./Solver";
 import { AnswerViewer } from "./AnswerViewer";
+import { normalize } from "./Chars";
 import classes from "./Styles.module.css";
 
 function App() {
@@ -107,6 +108,30 @@ function App() {
     terminateWorker();
   }
 
+  const [isComposing, setIsComposing] = useState(false);
+
+  const onWordsChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    if (isComposing) {
+      setWordsRaw(e.currentTarget.value);
+      return;
+    }
+
+    const normalized = normalize(e.currentTarget.value, {alphaUpperCase: true, noSmallKana: true});
+    setWordsRaw(normalized);
+  };
+
+  const onCompositionEnd = (e: React.CompositionEvent<HTMLTextAreaElement>) => {
+    const normalized = normalize(e.currentTarget.value, {alphaUpperCase: true, noSmallKana: true});
+    setWordsRaw(normalized);
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.ctrlKey && e.key === "Enter") {
+      onRunSolver();
+      e.preventDefault();
+    }
+  }
+
   return (
     <div>
       <div>
@@ -120,7 +145,16 @@ function App() {
       <div style={{display: "flex"}}>
         <GridEditor values={grid} onChange={gridOnChange} />
 
-        <textarea rows={8} cols={20} className={classes.words} onChange={(e) => setWordsRaw(e.target.value)} value={wordsRaw} />
+        <textarea
+          rows={8}
+          cols={20}
+          className={classes.words}
+          onInput={onWordsChange}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={onCompositionEnd}
+          onKeyDown={onKeyDown}
+          value={wordsRaw}
+        />
       </div>
       <div>
         {status}
