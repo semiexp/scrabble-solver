@@ -12,7 +12,6 @@ export function solveScrabbleAsync(board, words, allShown, numMaxAnswers) {
       currentReject = null;
       resolve(e.data);
     };
-    console.log(board);
     worker.postMessage({ board, words, allShown, numMaxAnswers });
     currentReject = reject;
   });
