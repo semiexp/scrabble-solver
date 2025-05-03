@@ -78,6 +78,10 @@ function App() {
     }
 
     const words = wordsRaw.split("\n").map((line) => line.trim()).filter((line) => line.length > 0);
+    if (words.length === 0) {
+      setStatus("Error: no words");
+      return;
+    }
 
     setAnswers(null);
     setIsRunning(true);
