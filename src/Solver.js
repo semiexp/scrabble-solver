@@ -3,7 +3,7 @@ import Worker from "./Worker?worker";
 let worker = null;
 let currentReject = null;
 
-export function solveScrabbleAsync(board, words, numMaxAnswers) {
+export function solveScrabbleAsync(board, words, allShown, numMaxAnswers) {
   if (worker === null) {
     worker = new Worker();
   }
@@ -12,7 +12,8 @@ export function solveScrabbleAsync(board, words, numMaxAnswers) {
       currentReject = null;
       resolve(e.data);
     };
-    worker.postMessage({ board, words, numMaxAnswers });
+    console.log(board);
+    worker.postMessage({ board, words, allShown, numMaxAnswers });
     currentReject = reject;
   });
 }

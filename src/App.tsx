@@ -56,6 +56,8 @@ function App() {
     }
   };
 
+  const [allShown, setAllShown] = useState(false);
+
   const [isRunning, setIsRunning] = useState(false);
 
   const [answers, setAnswers] = useState<string[][][] | null>(null);
@@ -84,7 +86,7 @@ function App() {
     try {
       const start = Date.now();
 
-      const results = await solveScrabbleAsync(board, words, maxAns);
+      const results = await solveScrabbleAsync(board, words, allShown, maxAns);
 
       const elapsed = (Date.now() - start) / 1000.0;
 
@@ -135,6 +137,10 @@ function App() {
   return (
     <div>
       <div>
+        Right Click: Toggle black cell / Ctrl+Enter: Start solver<br />
+        <a href="./licenses.txt">License</a>
+      </div>
+      <div>
         height: <input type="number" value={height} onChange={onChangeHeight} size={4} />
         width: <input type="number" value={width} onChange={onChangeWidth} size={4} />
         max ans: <input type="number" value={maxAns} size={5} onChange={(e) => setMaxAns(parseInt(e.target.value))} />
@@ -142,9 +148,11 @@ function App() {
         <input type="button" value="Solve" onClick={onRunSolver} disabled={isRunning} />
         <input type="button" value="Stop" onClick={onTerminateSolver} disabled={!isRunning} />
       </div>
+      <div>
+        <input type="checkbox" id="allShown" checked={allShown} onChange={(e) => setAllShown(e.target.checked)} />
+        <label htmlFor="allShown">All instances of prefilled characters are given</label>
+      </div>
       <div style={{display: "flex"}}>
-        <GridEditor values={grid} onChange={gridOnChange} />
-
         <textarea
           rows={8}
           cols={20}
@@ -155,6 +163,8 @@ function App() {
           onKeyDown={onKeyDown}
           value={wordsRaw}
         />
+
+        <GridEditor values={grid} onChange={gridOnChange} />
       </div>
       <div>
         {status}

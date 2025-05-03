@@ -41,6 +41,9 @@ export const GridEditor = (props: GridEditorProps) => {
 
   const onFocus = (y: number, x: number) => {
     // move the cursor to the end of the input
+    if (values[y][x] === " ") {
+      return;
+    }
     refs.current![`${y}-${x}`]!.setSelectionRange(values[y][x].length, values[y][x].length);
     setCurrentFocus({y, x});
   };
@@ -65,15 +68,35 @@ export const GridEditor = (props: GridEditorProps) => {
     props.onChange(y, x, value);
   };
 
+  const onMouseDown = (e: React.MouseEvent, y: number, x: number) => {
+    // right click?
+    if (e.button === 2) {
+      if (values[y][x] !== " ") {
+        props.onChange(y, x, " ");
+        setCurrentFocus(null);
+        refs.current![`${y}-${x}`]!.blur();
+      } else {
+        props.onChange(y, x, "");
+      }
+      e.preventDefault();
+      return;
+    }
+    if (values[y][x] === " ") {
+      e.preventDefault();
+    }
+  };
+
   for (let y = 0; y < height; ++y) {
     const row = [];
     for (let x = 0; x < width; ++x) {
       const value = values[y][x];
+      const style = value === " " ? { "style": {"backgroundColor": "#cccccc"} } : undefined;
+
       row.push(
         <input
           key={`cell-${y}-${x}`}
           type="text"
-          value={value}
+          value={value === " " ? "" : value}
           className={classes.gridEditorCell}
           ref={ref => refs.current![`${y}-${x}`] = ref}
           onFocus={() => onFocus(y, x)}
@@ -82,6 +105,9 @@ export const GridEditor = (props: GridEditorProps) => {
           onCompositionStart={() => setIsComposing(true)}
           onCompositionEnd={() => setIsComposing(false)}
           onInput={(e) => onInput(e, y, x)}
+          onMouseDown={(e) => onMouseDown(e, y, x)}
+          onContextMenu={(e) => e.preventDefault()}
+          {...style}
         />
       );
     }

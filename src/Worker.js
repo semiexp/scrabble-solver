@@ -2,7 +2,7 @@ import Module from "./solver/scrabble";
 
 let Solver = null;
 
-function solveScrabble(board, words, numMaxAnswers) {
+function solveScrabble(board, words, allShown, numMaxAnswers) {
   const height = board.length;
   const width = board[0].length;
 
@@ -30,7 +30,7 @@ function solveScrabble(board, words, numMaxAnswers) {
           let v = -1;
           if (board[y][x] === null) {
               v = 0;
-          } else if (buffer[y][x] === " ") {
+          } else if (board[y][x] === " ") {
               v = 1;
           } else {
               v = charId(board[y][x]) + 2;
@@ -62,7 +62,7 @@ function solveScrabble(board, words, numMaxAnswers) {
   const solverBuf = Solver._malloc(buffer.length);
   Solver.HEAPU8.set(buffer, solverBuf);
 
-  const result = Solver._solve_scrabble(solverBuf, buffer.length, numMaxAnswers);
+  const result = Solver._solve_scrabble(solverBuf, buffer.length, numMaxAnswers, allShown ? 1 : 0);
   Solver._free(solverBuf);
 
   const numAnswers = Solver.HEAPU8[result] | (Solver.HEAPU8[result + 1] << 8) | (Solver.HEAPU8[result + 2] << 16) | (Solver.HEAPU8[result + 3] << 24);
@@ -93,11 +93,11 @@ self.onmessage = function (e) {
   const data = e.data;
 
   if (Solver) {
-    solveScrabble(data.board, data.words, data.numMaxAnswers);
+    solveScrabble(data.board, data.words, data.allShown, data.numMaxAnswers);
   } else {
     Module().then(mod => {
       Solver = mod;
-      solveScrabble(data.board, data.words, data.numMaxAnswers);
+      solveScrabble(data.board, data.words, data.allShown, data.numMaxAnswers);
     })
   }
 }
