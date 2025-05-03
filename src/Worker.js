@@ -1,4 +1,4 @@
-import Module from "./solver/scrabble";
+import Module from "./solver/scrabble_solver";
 
 let Solver = null;
 

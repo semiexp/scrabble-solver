@@ -1,0 +1,11 @@
+[package]
+name = "scrabble_solver"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "scrabble_solver"
+crate-type = ["cdylib"]
+
+[dependencies]
+cspuz_rs_puzzles = { path = "../../cspuz_core/cspuz_rs_puzzles", default-features = false }
